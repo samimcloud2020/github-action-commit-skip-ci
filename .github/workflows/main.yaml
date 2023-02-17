@@ -1,0 +1,74 @@
+name: Node.js CI
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    if: |
+      contains(github.event.commits[0].message, '[skip ci]') == false &&
+      contains(github.event.commits[0].message, '[ci skip]') == false
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: [ 17, 18 ]
+
+    
+    steps:
+      - name: Checkout/get code from repo
+        uses: actions/checkout@v3
+      - name: Use Node.js 
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: install excat version dependencies or devdependencies from package-lock.json
+        run: npm ci 
+        
+      - name: fix vulnerbilities
+        run: npm audit fix
+        
+      - name: build asset for production
+        run: npm run build --if-present
+        
+      - name: test it
+        run: npm test
+  security:
+    needs: [build]
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      statuses: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@master
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        continue-on-error: true # To make sure that SARIF upload gets called
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+          
+  context-log:
+    needs: [ build, security ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dump GitHub context
+        id: github_context_step
+        run: echo '${{ toJSON(github) }}'
+      - name: Dump job context
+        run: echo '${{ toJSON(job) }}'
+      - name: Dump steps context
+        run: echo '${{ toJSON(steps) }}'
+      - name: Dump runner context
+        run: echo '${{ toJSON(runner) }}'
+      - name: Dump strategy context
+        run: echo '${{ toJSON(strategy) }}'
+      - name: Dump matrix context
+        run: echo '${{ toJSON(matrix) }}'          
+        
+  
