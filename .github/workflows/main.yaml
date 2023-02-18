@@ -35,6 +35,18 @@ jobs:
         
       - name: test it
         run: npm  test 
+        
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: github
+          SLACK_COLOR: '#efefef'
+          SLACK_ICON_EMOJI: ':bell:'
+          SLACK_ICON: https://github.com/rtCamp.png?size=48
+          SLACK_MESSAGE: 'Post Content :rocket:'
+          SLACK_TITLE: nodejs build
+          SLACK_USERNAME: rtCamp
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}  
      
         
       - name: Slack Notification
