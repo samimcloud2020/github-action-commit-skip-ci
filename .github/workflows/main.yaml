@@ -41,7 +41,7 @@ jobs:
         # Use built-in function in expression
         if: ${{ failure() }}
         with:
-          channel-id: transmission
+          channel-id: A04QLV92NLR
           slack-message: 'Test run <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.run_id }}> failed.'
         env:
           SLACK_BOT_TOKEN: ${{ secrets.MY_SLACK_BOT_TOKEN }}  
