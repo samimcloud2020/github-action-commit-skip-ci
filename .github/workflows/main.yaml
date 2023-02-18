@@ -35,6 +35,16 @@ jobs:
         
       - name: test it
         run: npm test
+
+      - name: 'Post error notification to Slack channel'
+        uses: slackapi/slack-github-action@v1.18.0
+        # Use built-in function in expression
+        if: ${{ failure() }}
+        with:
+          channel-id: TRANSMISSION
+          slack-message: 'Test run <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.run_id }}> failed.'
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.MY_SLACK_BOT_TOKEN }}  
   security:
     needs: [build]
     runs-on: ubuntu-latest
